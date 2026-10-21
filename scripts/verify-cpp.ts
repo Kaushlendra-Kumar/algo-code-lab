@@ -29,15 +29,26 @@ const cache: Record<string, boolean> = existsSync(cacheFile) ? JSON.parse(readFi
 
 interface Job {
   name: string;
-  kind: 'program' | 'question' | 'snippet' | 'go';
+  kind: 'program' | 'question' | 'snippet' | 'go' | 'bug';
   source: string;
   tests: { in: string; out: string }[];
+  /** For bug jobs: text the buggy program must print (from the symptom), if any. */
+  expectPrint?: string;
 }
 
 const jobs: Job[] = [];
 for (const m of DAY_MODULES) {
   for (const ex of [m.day.exampleA, m.day.exampleB]) {
     jobs.push({ name: ex.id, kind: 'program', source: ex.code, tests: [{ in: '', out: ex.output }] });
+    if (ex.bug) {
+      const occurrences = ex.code.split(ex.bug.find).length - 1;
+      if (occurrences !== 1) {
+        console.error(`✗ ${ex.id}: bug.find must occur exactly once in the code (found ${occurrences})`);
+        process.exit(1);
+      }
+      const printed = ex.bug.symptom.match(/prints "([^"]+)"/);
+      jobs.push({ name: `${ex.id}:bug`, kind: 'bug', source: ex.code.replace(ex.bug.find, ex.bug.replace), tests: [{ in: '', out: ex.output }], expectPrint: printed?.[1] });
+    }
   }
   for (const q of m.questions) {
     jobs.push({ name: q.id, kind: 'question', source: `${q.cpp}\n\n${q.main}\n`, tests: q.tests });
@@ -83,9 +94,27 @@ async function verify(job: Job): Promise<string | null> {
   const src = `${base}.cpp`;
   writeFileSync(src, job.source);
   try {
-    await run('g++', [...FLAGS, ...(job.kind === 'snippet' ? ['-fsyntax-only'] : ['-o', base]), src], { maxBuffer: 1 << 24 });
+    await run('g++', [...FLAGS.filter((f) => job.kind !== 'bug' || f !== '-Werror'), ...(job.kind === 'snippet' ? ['-fsyntax-only'] : ['-o', base]), src], { maxBuffer: 1 << 24 });
   } catch (e) {
     return `compile failed:\n${(e as { stderr?: string }).stderr ?? e}`;
+  }
+  if (job.kind === 'bug') {
+    // The buggy variant must misbehave: wrong output, crash or timeout — and print the quoted symptom if one is given.
+    const t = job.tests[0];
+    let out = '';
+    let failed = false;
+    try {
+      const p = run(base, [], { timeout: 3000, maxBuffer: 1 << 24 });
+      p.child.stdin?.end(t.in);
+      out = (await p).stdout;
+    } catch (e) {
+      failed = true;
+      out = (e as { stdout?: string }).stdout ?? '';
+    }
+    if (!failed && norm(out) === norm(t.out)) return 'bug variant produces the correct output — the "Fix the bug" exercise would be misleading';
+    if (job.expectPrint && !out.includes(job.expectPrint)) return `bug variant does not print the symptom text "${job.expectPrint}"; actual output: ${JSON.stringify(out.slice(0, 300))}`;
+    cache[key] = true;
+    return null;
   }
   for (const [i, t] of job.tests.entries()) {
     let out: string;
