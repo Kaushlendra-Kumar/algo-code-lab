@@ -6,3 +6,6 @@ test-results
 .cpp-build
 *.local
 .DS_Store
+.vercel
+
+.vercel

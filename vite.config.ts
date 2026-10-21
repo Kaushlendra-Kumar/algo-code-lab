@@ -4,7 +4,9 @@ import react from '@vitejs/plugin-react';
 
 // GitHub Pages serves a project repository from /<repo-name>/.
 // Override with BASE_PATH=/ for Cloudflare Pages or a custom domain.
-const base = process.env.BASE_PATH ?? '/algo-code-lab/';
+// Vercel and Cloudflare Pages builds serve from the root automatically.
+const rootHost = process.env.VERCEL || process.env.CF_PAGES;
+const base = process.env.BASE_PATH ?? (rootHost ? '/' : '/algo-code-lab/');
 
 export default defineConfig({
   base,
