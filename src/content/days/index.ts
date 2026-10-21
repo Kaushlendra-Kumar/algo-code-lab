@@ -14,5 +14,9 @@ import d12 from './day12';
 import d13 from './day13';
 import d14 from './day14';
 import d15 from './day15';
+import d16 from './day16';
+import d17 from './day17';
+import d18 from './day18';
+import d19 from './day19';
 
-export const DAY_MODULES: DayModule[] = [d01, d02, d03, d04, d05, d06, d07, d08, d09, d10, d11, d12, d13, d14, d15];
+export const DAY_MODULES: DayModule[] = [d01, d02, d03, d04, d05, d06, d07, d08, d09, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19];
