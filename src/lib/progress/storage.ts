@@ -43,6 +43,11 @@ export function migrate(raw: Record<string, unknown>): Record<string, unknown> {
       for (const d of raw.completedLessons) if (typeof d === 'number') lessons[d] = { completedAt: str(raw.createdAt, new Date(0).toISOString()) };
     }
     out = { ...out, lessons: { ...(isObj(raw.lessons) ? raw.lessons : {}), ...lessons }, exercises: raw.exercises ?? {} };
+    // v1 kept only a running total; carry it over as one log entry so it survives recomputation.
+    const total = num(raw.xp);
+    if (total > 0 && !Array.isArray(raw.xpLog)) {
+      out.xpLog = [{ key: 'migrated:v1', amount: total, at: str(raw.createdAt, new Date(0).toISOString()), reason: 'XP carried over from an older save' }];
+    }
     delete out.completedLessons;
   }
   out.schemaVersion = PROGRESS_SCHEMA_VERSION;

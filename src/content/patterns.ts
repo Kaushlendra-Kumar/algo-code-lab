@@ -90,7 +90,7 @@ export const PATTERNS: Pattern[] = [
     avoidWhen: ['The aggregate is not decomposable (needs the whole window)'],
     invariant: 'suffix[i] aggregates a[i..n−1]; suffix[n] is the identity (0 for sums, 1 for products).',
     complexity: 'O(n) time, O(n) space (often reducible to O(1) by folding into the output array).',
-    examples: ['d39-A'],
+    examples: [],
     mistakes: ['Wrong identity element for the empty suffix', 'Building the suffix array in the wrong direction'],
     related: ['prefix-sum', 'running-aggregate'],
   }),
@@ -1052,7 +1052,7 @@ func (d *DSU) Unite(a, b int) bool {
     invariant: 'dp[i][w] = best value using the first i items within capacity w.',
     complexity: 'O(n × W) time; O(W) space with a 1D array iterated downwards.',
     visualization: 'dp',
-    examples: ['d29-A', 'd29-B', 'd37-B'],
+    examples: ['d29-A', 'd29-B'],
     mistakes: ['Iterating capacity upward in the 1D version (reuses an item = unbounded knapsack)'],
     related: ['dp-2d', 'subsets'],
   }),
@@ -1083,7 +1083,7 @@ func (d *DSU) Unite(a, b int) bool {
     complexity: 'Typically O(n³) (O(n²) states × O(n) splits).',
     visualization: 'dp',
     intro: true,
-    examples: ['d37-A'],
+    examples: [],
     cpp: cpp`
 // Longest palindromic subsequence: dp[l][r] for s[l..r].
 int lps(const string& s) {

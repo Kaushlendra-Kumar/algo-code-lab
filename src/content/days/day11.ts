@@ -168,7 +168,7 @@ int main() {
       topic: 'recursion',
       patterns: ['recursive-decomposition', 'divide-and-conquer'],
       objective: 'Combine halving recursion with modular arithmetic.',
-      statement: 'Print xⁿ mod m.',
+      statement: 'Given integers x, n and m, print xⁿ mod m. n can be as large as 10¹⁸, so repeated multiplication is too slow.',
       constraints: ['0 ≤ x ≤ 10⁹', '0 ≤ n ≤ 10¹⁸', '1 ≤ m ≤ 10⁹'],
       examples: [{ input: 'x = 2, n = 10, m = 1000', output: '24' }],
       edgeCases: ['n = 0 → 1 mod m', 'm = 1 → 0', 'x ≥ m'],
